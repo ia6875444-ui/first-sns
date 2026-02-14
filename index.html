@@ -117,6 +117,24 @@
         <input type="text" id="friend-search-id" placeholder="ID検索 (@user123)" style="flex:1; border:none; background:#f1f5f9; padding:10px 16px; border-radius:20px; outline:none;">
         <button onclick="searchFriend()" class="btn-primary" style="padding: 10px 16px;"><span class="material-symbols-outlined">search</span></button>
     </div>
+
+    <div style="margin: 30px auto; text-align: center; width: 100%; max-width: 300px;">
+        <div style="background: white; border: 2px solid #f90; padding: 10px; border-radius: 15px; position: relative; margin-bottom: 15px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #333;">
+            ワイになんか用か？<br>相談に乗るンゴ！
+            <div style="position: absolute; bottom: -10px; left: 50%; margin-left: -10px; border-top: 10px solid #f90; border-left: 10px solid transparent; border-right: 10px solid transparent;"></div>
+        </div>
+        <button onclick="askWai()" style="background: none; border: none; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;">
+            <img src="https://chie-pctr.c.yimg.jp/dk/iwiz-chie/que-10275493190?w=999&h=999&up=0&exp=3600" 
+                 alt="なんJ民ワイ" 
+                 style="width: 180px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));"
+                 onmouseover="this.style.transform='scale(1.05)'" 
+                 onmouseout="this.style.transform='scale(1.0)'">
+        </button>
+    </div>
+
+    <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">届いている申請</div><div id="request-list"></div>
+    <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">友達リスト</div><div id="friend-list"></div>
+</div>
     <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">届いている申請</div><div id="request-list"></div>
     <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">友達リスト</div><div id="friend-list"></div>
 </div>
@@ -375,4 +393,5 @@ async function askWai() {
 </script>
 </body>
 </html>
+
 
