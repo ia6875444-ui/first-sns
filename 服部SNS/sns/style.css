@@ -1,0 +1,413 @@
+/* ===== 変数・リセット ===== */
+:root {
+    --primary: #075e54;
+    --primary-dark: #055048;
+    --primary-light: #128c7e;
+    --accent: #25d366;
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --text: #111;
+    --text-muted: #65676b;
+    --border: #e4e6eb;
+    --danger: #dc3545;
+    --danger-hover: #c82333;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 75px;
+    line-height: 1.5;
+}
+
+/* ===== ヘッダー ===== */
+.header {
+    background: var(--primary);
+    color: white;
+    padding: 14px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+
+.header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ===== ページ切り替え ===== */
+.page {
+    display: none;
+    padding: 16px;
+    min-height: calc(100vh - 140px);
+}
+
+.page.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===== 投稿フォーム ===== */
+.post-form-container {
+    margin-bottom: 16px;
+}
+
+.post-form-card {
+    padding: 12px 16px !important;
+}
+
+.post-form-card textarea {
+    width: 100%;
+    border: none;
+    resize: none;
+    font-size: 16px;
+    font-family: inherit;
+    padding: 8px 0;
+    outline: none;
+}
+
+.post-form-card textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.post-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ===== タイムライン ===== */
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 12px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.timeline-empty {
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    color: var(--text-muted);
+}
+
+.timeline-empty .hint {
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.timeline-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.timeline-posts:not(:empty) + .timeline-empty,
+.timeline-posts:not(:empty) ~ .timeline-empty {
+    display: none;
+}
+
+/* ===== 投稿カード ===== */
+.post-card {
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+}
+
+.post-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.post-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.post-meta {
+    flex: 1;
+}
+
+.post-author {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 15px;
+}
+
+.post-username {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.post-time {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.post-content {
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ===== プロフィール ===== */
+.profile-container {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+}
+
+.profile-container h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.user-status {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.edit-field {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.edit-field:last-of-type {
+    margin-bottom: 20px;
+}
+
+.edit-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.edit-field input,
+.edit-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.edit-field input:focus,
+.edit-field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(7, 94, 84, 0.2);
+}
+
+.edit-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ===== ボタン ===== */
+.auth-btn {
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.auth-btn:hover {
+    opacity: 0.9;
+}
+
+.auth-btn:active {
+    transform: scale(0.98);
+}
+
+.auth-btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.auth-btn.secondary {
+    background: #444;
+    color: white;
+}
+
+.auth-btn.danger {
+    background: var(--danger);
+    color: white;
+}
+
+.auth-btn.full-width {
+    width: 100%;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===== モーダル ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-close:hover {
+    color: var(--text);
+}
+
+.modal-content h3 {
+    margin-bottom: 20px;
+}
+
+/* ===== フッターナビ ===== */
+.footer-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--card-bg);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0 20px;
+    border-top: 1px solid var(--border);
+    z-index: 100;
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 24px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--bg);
+}
+
+.nav-btn.active-btn {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.nav-icon {
+    font-size: 22px;
+}
