@@ -52,7 +52,7 @@
         /* 掲示板特有のデザイン */
         .thread-res { background: white; padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 15px; }
         .thread-meta { color: var(--gray); font-size: 13px; margin-bottom: 8px; }
-        .thread-meta b { color: #16a34a; } /* 2ch風の緑色の名前 */
+        .thread-meta b { color: #16a34a; }
 
         .friend-item { background: white; margin: 8px 12px; padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .unread-badge { background: #ef4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
@@ -117,23 +117,22 @@
         <input type="text" id="friend-search-id" placeholder="ID検索 (@user123)" style="flex:1; border:none; background:#f1f5f9; padding:10px 16px; border-radius:20px; outline:none;">
         <button onclick="searchFriend()" class="btn-primary" style="padding: 10px 16px;"><span class="material-symbols-outlined">search</span></button>
     </div>
+    <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">届いている申請</div><div id="request-list"></div>
+    <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">友達リスト</div><div id="friend-list"></div>
 
-    <div style="margin: 30px auto; text-align: center; width: 100%; max-width: 300px;">
-        <div style="background: white; border: 2px solid #f90; padding: 10px; border-radius: 15px; position: relative; margin-bottom: 15px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #333;">
+    <div style="margin: 30px auto 80px; text-align: center; width: 100%; max-width: 200px;">
+        <div style="background: white; border: 2px solid #f90; padding: 8px; border-radius: 12px; position: relative; margin-bottom: 10px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #333;">
             ワイになんか用か？<br>相談に乗るンゴ！
-            <div style="position: absolute; bottom: -10px; left: 50%; margin-left: -10px; border-top: 10px solid #f90; border-left: 10px solid transparent; border-right: 10px solid transparent;"></div>
+            <div style="position: absolute; bottom: -8px; left: 50%; margin-left: -8px; border-top: 8px solid #f90; border-left: 8px solid transparent; border-right: 8px solid transparent;"></div>
         </div>
         <button onclick="askWai()" style="background: none; border: none; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;">
             <img src="https://chie-pctr.c.yimg.jp/dk/iwiz-chie/que-10275493190?w=999&h=999&up=0&exp=3600" 
                  alt="なんJ民ワイ" 
-                 style="width: 180px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));"
+                 style="width: 100px; height: auto; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.2));"
                  onmouseover="this.style.transform='scale(1.05)'" 
                  onmouseout="this.style.transform='scale(1.0)'">
         </button>
     </div>
-
-    <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">届いている申請</div><div id="request-list"></div>
-    <div style="font-size: 14px; color: var(--gray); margin: 20px 16px 8px; font-weight: bold;">友達リスト</div><div id="friend-list"></div>
 </div>
 
 <div id="page-chat" class="page">
@@ -228,7 +227,7 @@
         if (document.getElementById('page-thread').classList.contains('active')) showPage('board');
     }
 
-    // --- 匿名掲示板 (2ch風) 機能 ---
+    // --- 匿名掲示板機能 ---
     async function loadThreads() {
         const { data: threads } = await supabaseClient.from('threads').select('*, thread_posts(id)').order('created_at', { ascending: false });
         const list = document.getElementById('thread-list'); list.innerHTML = '';
@@ -293,7 +292,7 @@
         else { document.getElementById('thread-content').value = ''; loadThreadPosts(); }
     }
 
-    // --- その他既存機能 ---
+    // --- アカウント・プロフィール機能 ---
     async function signUp() { const email = prompt("メールアドレス"); const password = prompt("パスワード"); if(!email || !password) return; const { error } = await supabaseClient.auth.signUp({ email, password }); if(error) showToast("エラー: " + error.message); else showToast("登録メールを送りました！"); }
     async function signIn() { const email = prompt("メール"); const password = prompt("パスワード"); const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if(error) showToast("失敗: " + error.message); else { showToast("ログイン成功！"); checkUser(); } }
     async function signOut() { await supabaseClient.auth.signOut(); showToast("ログアウトしました"); checkUser(); }
@@ -321,6 +320,7 @@
     }
     document.getElementById('image-input').addEventListener('change', function(e) { if (e.target.files[0]) document.getElementById('preview').src = URL.createObjectURL(e.target.files[0]); });
 
+    // --- タイムライン機能 ---
     function previewTimelineImage(input) { if (input.files[0]) { document.getElementById('post-image-preview').src = URL.createObjectURL(input.files[0]); document.getElementById('post-image-preview').style.display = 'block'; } }
     async function postTimeline() {
         const { data: { user } } = await supabaseClient.auth.getUser(); if (!user) return showToast("ログインが必要です");
@@ -344,6 +344,7 @@
     async function addComment(postId) { const { data: { user } } = await supabaseClient.auth.getUser(); const input = document.getElementById(`input-${postId}`); if (!input.value) return; await supabaseClient.from('comments').insert({ post_id: postId, user_id: user.id, content: input.value }); input.value = ''; loadTimeline(); }
     async function deletePost(id) { if(confirm("削除しますか？")){ await supabaseClient.from('posts').delete().eq('id', id); loadTimeline(); showToast("削除しました"); } }
 
+    // --- 友達・チャット機能 ---
     async function searchFriend() { const id = document.getElementById('friend-search-id').value.replace('@', ''); const { data } = await supabaseClient.from('profiles').select('*').eq('username', id).single(); if(data) showToast("見つかりました！"); else showToast("見つかりません..."); }
     async function loadFriendData() {
         const { data: { user } } = await supabaseClient.auth.getUser(); if(!user) return;
@@ -364,33 +365,26 @@
     function startRealtimeMessages() { messageSubscription = supabaseClient.channel('public:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, async payload => { await loadMessages(); if (payload.eventType === 'INSERT' && payload.new.sender_id === chatRecipientId) await supabaseClient.from('messages').update({ is_read: true }).eq('id', payload.new.id); }).subscribe(); }
     async function sendMessage() { const input = document.getElementById('chat-input'); if(!input.value || !chatRecipientId) return; const { data: { user } } = await supabaseClient.auth.getUser(); await supabaseClient.from('messages').insert({ sender_id: user.id, receiver_id: chatRecipientId, content: input.value }); input.value = ''; }
     
-    // AI「ワイ」の呼び出し処理（あなたから提供されたコードのままです）
+    // --- 初期化処理 ---
+    supabaseClient.auth.onAuthStateChange((event) => { checkUser(); if (event === 'SIGNED_IN') showPage('home'); });
+    checkUser();
+
+    // --- ワイ（AI）を呼び出す関数 ---
     async function askWai() {
         const msg = prompt("ワイに何か用か？（相談を入力するんや）");
         if (!msg) return;
-
         try {
             const res = await fetch("https://xbouikcwdedorsntlsly.supabase.co/functions/v1/ai-chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ prompt: msg })
             });
-
             const data = await res.json();
-            
-            if (!res.ok) {
-                alert("ワイの頭がバグったンゴ！原因はこれや：\n" + (data.error || "不明なエラー"));
-                return;
-            }
-
-            alert("【ワイ】\n" + data.text);
+            alert(data.text);
         } catch (err) {
-            alert("通信そのものができんンゴ！：\n" + err.message);
+            alert("ワイ、通信できんくて忙しいンゴ！\n" + err.message);
         }
     }
-
-    supabaseClient.auth.onAuthStateChange((event) => { checkUser(); if (event === 'SIGNED_IN') showPage('home'); });
-    checkUser();
 </script>
 </body>
 </html>
