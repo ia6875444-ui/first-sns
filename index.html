@@ -352,5 +352,27 @@
     supabaseClient.auth.onAuthStateChange((event) => { checkUser(); if (event === 'SIGNED_IN') showPage('home'); });
     checkUser();
 </script>
+    <button onclick="askWai()" style="position:fixed; bottom:20px; right:20px; border-radius:50%; width:70px; height:70px; background:#f90; color:white; border:none; cursor:pointer; font-size:30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚾</button>
+
+<script>
+async function askWai() {
+    const msg = prompt("ワイに何か用か？（相談を入力するんや）");
+    if (!msg) return;
+
+    try {
+        // あなたのプロジェクトURLに自動でつながります
+        const res = await fetch("https://xbouikcwdedorsntlsly.supabase.co/functions/v1/ai-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: msg })
+        });
+        const data = await res.json();
+        alert("【ワイ】\n" + data.text);
+    } catch (err) {
+        alert("ワイ、今ちょっと忙しいンゴ（エラーが発生しました）");
+    }
+}
+</script>
 </body>
 </html>
+
