@@ -345,7 +345,36 @@
     async function deletePost(id) { if(confirm("削除しますか？")){ await supabaseClient.from('posts').delete().eq('id', id); loadTimeline(); showToast("削除しました"); } }
 
     // --- 友達・チャット機能 ---
-    async function searchFriend() { const id = document.getElementById('friend-search-id').value.replace('@', ''); const { data } = await supabaseClient.from('profiles').select('*').eq('username', id).single(); if(data) showToast("見つかりました！"); else showToast("見つかりません..."); }
+    async function searchFriend() { 
+    const id = document.getElementById('friend-search-id').value.replace('@', ''); 
+    if (!id) return;
+
+    // 1. 相手をデータベースから探す
+    const { data: friend } = await supabaseClient.from('profiles').select('*').eq('username', id).single(); 
+    if (!friend) {
+        showToast("見つかりません...");
+        return;
+    }
+
+    // 2. 自分がログインしているか確認
+    const { data: { user } } = await supabaseClient.auth.getUser(); 
+    if (!user) return showToast("ログインが必要です");
+    if (user.id === friend.id) return showToast("自分には申請できません");
+
+    // 3. 友達申請（pending状態）をテーブルに保存する
+    const { error } = await supabaseClient.from('friendships').insert({
+        user_id: user.id,
+        friend_id: friend.id,
+        status: 'pending'
+    });
+
+    if (error) {
+        showToast("すでに申請済みか友達です");
+    } else {
+        showToast(`${friend.display_name} さんに申請を送りました！`);
+        document.getElementById('friend-search-id').value = ''; // 検索欄をリセット
+    }
+}
     async function loadFriendData() {
         const { data: { user } } = await supabaseClient.auth.getUser(); if(!user) return;
         const { data: reqs } = await supabaseClient.from('friendships').select('id, profiles!user_id(display_name)').eq('friend_id', user.id).eq('status', 'pending');
@@ -388,3 +417,4 @@
 </script>
 </body>
 </html>
+
