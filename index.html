@@ -377,21 +377,30 @@ async function askWai() {
     if (!msg) return;
 
     try {
-        // あなたのプロジェクトURLに自動でつながります
         const res = await fetch("https://xbouikcwdedorsntlsly.supabase.co/functions/v1/ai-chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: msg })
         });
+
         const data = await res.json();
+        
+        if (!res.ok) {
+            // サーバー側で何が起きたかを表示
+            alert("ワイの頭がバグったンゴ！原因はこれや：\n" + (data.error || "不明なエラー"));
+            return;
+        }
+
         alert("【ワイ】\n" + data.text);
     } catch (err) {
-        alert("ワイ、今ちょっと忙しいンゴ（エラーが発生しました）");
+        // 通信そのものが失敗した原因を表示
+        alert("通信そのものができんンゴ！：\n" + err.message);
     }
 }
 </script>
 </body>
 </html>
+
 
 
 
