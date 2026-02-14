@@ -346,35 +346,53 @@
 
     // --- 友達・チャット機能 ---
     async function searchFriend() { 
+        const id = document.getElementById('friend-search-id').value.replace('@', ''); 
+        if (!id) return;
+
+        // 1. 相手をデータベースから探す
+        const { data: friend } = await supabaseClient.from('profiles').select('*').eq('username', id).single(); 
+        if (!friend) {
+            showToast("見つかりません...");
+            return;
+        }
+
+        // 2. 自分がログインしているか確認
+        const { data: { user } } = await supabaseClient.auth.getUser(); 
+        if (!user) return showToast("ログインが必要です");
+        if (user.id === friend.id) return showToast("自分には申請できません");
+
+        // 3. 【追加】すでに申請済み、または友達かどうかを事前チェック
+        const { data: existing } = await supabaseClient.from('friendships')
+            .select('*')
+            .or(`and(user_id.eq.${user.id},friend_id.eq.${friend.id}),and(user_id.eq.${friend.id},friend_id.eq.${user.id})`);
+
+        if (existing && existing.length > 0) {
+            showToast("すでに申請済み、または友達です");
+            return; // ここで処理を止める
+        }
+
+        // 4. 【追加】勝手に送らず、確認ダイアログを出す
+        const isOk = confirm(`${friend.display_name} さん（@${friend.username}）が見つかりました！\n友達申請を送りますか？`);
+        if (!isOk) {
+            return; // 「キャンセル」を押した場合は何もせず終わる
+        }
+
+        // 5. 「OK」を押した場合のみ、友達申請を保存する
+        const { error } = await supabaseClient.from('friendships').insert({
+            user_id: user.id,
+            friend_id: friend.id,
+            status: 'pending'
+        });
+
+        if (error) {
+            showToast("エラーが発生しました: " + error.message);
+        } else {
+            showToast(`${friend.display_name} さんに申請を送りました！`);
+            document.getElementById('friend-search-id').value = ''; // 検索欄をリセット
+        }
+    }
     const id = document.getElementById('friend-search-id').value.replace('@', ''); 
-    if (!id) return;
-
-    // 1. 相手をデータベースから探す
-    const { data: friend } = await supabaseClient.from('profiles').select('*').eq('username', id).single(); 
-    if (!friend) {
-        showToast("見つかりません...");
-        return;
-    }
-
-    // 2. 自分がログインしているか確認
-    const { data: { user } } = await supabaseClient.auth.getUser(); 
-    if (!user) return showToast("ログインが必要です");
-    if (user.id === friend.id) return showToast("自分には申請できません");
-
-    // 3. 友達申請（pending状態）をテーブルに保存する
-    const { error } = await supabaseClient.from('friendships').insert({
-        user_id: user.id,
-        friend_id: friend.id,
-        status: 'pending'
-    });
-
-    if (error) {
-        showToast("すでに申請済みか友達です");
-    } else {
-        showToast(`${friend.display_name} さんに申請を送りました！`);
-        document.getElementById('friend-search-id').value = ''; // 検索欄をリセット
-    }
-}
+ 
     async function loadFriendData() {
         const { data: { user } } = await supabaseClient.auth.getUser(); if(!user) return;
         const { data: reqs } = await supabaseClient.from('friendships').select('id, profiles!user_id(display_name)').eq('friend_id', user.id).eq('status', 'pending');
@@ -389,7 +407,24 @@
         }
     }
     async function acceptRequest(id) { await supabaseClient.from('friendships').update({ status: 'accepted' }).eq('id', id); loadFriendData(); }
-    async function openChat(id, name) { chatRecipientId = id; document.getElementById('header-title').innerText = name; showPage('chat'); await loadMessages(); startRealtimeMessages(); }
+    async function openChat(id, name) { 
+    chatRecipientId = id; 
+    document.getElementById('header-title').innerText = name; 
+    showPage('chat'); 
+
+    // ★追加：チャットを開いた瞬間に、相手からの未読メッセージをすべて「既読」にする
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+        await supabaseClient.from('messages')
+            .update({ is_read: true })
+            .eq('sender_id', id)
+            .eq('receiver_id', user.id)
+            .eq('is_read', false);
+    }
+
+    await loadMessages(); 
+    startRealtimeMessages(); 
+}
     async function loadMessages() { const { data: { user } } = await supabaseClient.auth.getUser(); const { data: msgs } = await supabaseClient.from('messages').select('*').or(`and(sender_id.eq.${user.id},receiver_id.eq.${chatRecipientId}),and(sender_id.eq.${chatRecipientId},receiver_id.eq.${user.id})`).order('created_at', { ascending: true }); const area = document.getElementById('chat-messages'); area.innerHTML = ''; msgs?.forEach(m => { const mine = m.sender_id === user.id; area.innerHTML += `<div style="display:flex; flex-direction:column; align-items:${mine?'flex-end':'flex-start'};"><div class="bubble ${mine?'mine':'theirs'}">${m.content}</div>${mine && m.is_read ? '<span class="read-status">既読</span>' : ''}</div>`; }); area.scrollTop = area.scrollHeight; }
     function startRealtimeMessages() { messageSubscription = supabaseClient.channel('public:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, async payload => { await loadMessages(); if (payload.eventType === 'INSERT' && payload.new.sender_id === chatRecipientId) await supabaseClient.from('messages').update({ is_read: true }).eq('id', payload.new.id); }).subscribe(); }
     async function sendMessage() { const input = document.getElementById('chat-input'); if(!input.value || !chatRecipientId) return; const { data: { user } } = await supabaseClient.auth.getUser(); await supabaseClient.from('messages').insert({ sender_id: user.id, receiver_id: chatRecipientId, content: input.value }); input.value = ''; }
@@ -417,4 +452,5 @@
 </script>
 </body>
 </html>
+
 
